@@ -50,7 +50,7 @@ user_input = st.text_area("🎟️ Your Movie Review (English only):", height=15
 
 if st.button("📽️ START ANALYSIS"):
     if user_input.strip() == "":
-        st.warning("⚠️ โปรดระบุรีวิวหนังก่อน (วิเคราะห์)")
+        st.warning("⚠️ โปรดระบุรีวิวหนังก่อน")
     else:
         # วิเคราะห์ผล
         probabilities = model.predict_proba([user_input])[0]
