@@ -20,8 +20,8 @@ st.markdown("""
         font-weight: bold;
     }
     .stTextArea>div>div>textarea {
-        background-color: #2b2b2b;
-        color: #f1f1f1;
+        background-color: #ffffff;
+        color: #000000;
         border: 1px solid #e50914;
     }
     h1 {
