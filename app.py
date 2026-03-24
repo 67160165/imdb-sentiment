@@ -20,22 +20,35 @@ user_input = st.text_area("✍️ พิมพ์รีวิวภาพยน�
 
 # 4. สร้างปุ่มกดสำหรับประมวลผล
 if st.button("🔍 วิเคราะห์รีวิว"):
-    # เช็กว่าผู้ใช้พิมพ์ข้อความมาหรือเปล่า (ถ้าว่างเปล่าให้แจ้งเตือน)
     if user_input.strip() == "":
         st.warning("⚠️ กรุณาพิมพ์ข้อความรีวิวก่อนกดปุ่มวิเคราะห์ครับ")
     else:
-        # ให้ AI ทำนายผล
+        # 1. ให้ AI ทำนายผล
         prediction = model.predict([user_input])[0]
-        # ขอค่าความมั่นใจ (Probability) เพื่อโชว์ตามเกณฑ์อาจารย์
         probabilities = model.predict_proba([user_input])[0]
         
+        # 2. คำนวณคะแนน (แปลงความมั่นใจเป็นคะแนน 1-10)
+        # probabilities[1] คือความมั่นใจฝั่ง Positive
+        sentiment_score = probabilities[1] * 10 
+
         st.markdown("---")
-        st.subheader("📊 ผลการวิเคราะห์:")
-        
-        # แสดงผลลัพธ์พร้อมสีสันให้ดูง่าย
-        if prediction == 'positive':
-            st.success("🌟 **รีวิวนี้เป็น: เชิงบวก (Positive)**")
-            st.info(f"ความมั่นใจของโมเดล: {probabilities[1]:.2%}")
+        st.subheader("📊 ผลการวิเคราะห์จาก AI")
+
+        # 3. แสดง Metric คะแนนตัวเลข
+        st.metric(label="คะแนนความประทับใจ (Sentiment Score)", value=f"{sentiment_score:.1f} / 10")
+
+        # 4. แสดงระดับดาว (Star Rating)
+        stars = int(sentiment_score / 2) # 10 คะแนน หาร 2 = 5 ดาว
+        if stars < 1 and sentiment_score > 0.5: stars = 1 # ปัดขึ้นให้มีอย่างน้อย 1 ดาวถ้าไม่แย่เกินไป
+        st.write(f"ระดับความชอบ: {'⭐' * stars}{'☆' * (5-stars)}")
+
+        # 5. แสดงสถานะและคำอธิบาย
+        if sentiment_score >= 7.5:
+            st.success(f"🌟 **ผลลัพธ์: เชิงบวกมาก (Excellent)**")
+            st.write("AI มั่นใจว่านี่คือรีวิวที่ประทับใจสุดๆ")
+        elif sentiment_score >= 4.5:
+            st.warning(f"😐 **ผลลัพธ์: กลางๆ (Neutral/Fair)**")
+            st.write("AI มองว่ารีวิวนี้มีทั้งส่วนดีและส่วนที่เฉยๆ ปนกัน")
         else:
-            st.error("💔 **รีวิวนี้เป็น: เชิงลบ (Negative)**")
-            st.info(f"ความมั่นใจของโมเดล: {probabilities[0]:.2%}")
+            st.error(f"💔 **ผลลัพธ์: เชิงลบ (Negative)**")
+            st.write("AI ตรวจพบความไม่พึงพอใจในเนื้อหารีวิวนี้")
